@@ -90,11 +90,16 @@ running counts as not green, so ship with time for CI to finish.
   blocks any commit containing something shaped like an API key --- by the time
   CI sees a key it's already pushed, so the hook is the sensor that matters.
 
-Nothing here measures **accessibility** or **performance** --- wiring those
-sensors (`axe-core`, Lighthouse, or whatever you choose) is your work, and later
-in the course the spec will ask you to show how you tested both. When you do,
-read a green performance result honestly: it's a lab estimate from one run on a
-CI machine, not proof the site is fast for real users.
+`spec/axe.test.ts` wires `axe-core`'s structural rules (everything except
+`color-contrast`, which jsdom can't resolve reliably) into `pnpm check`, so
+those regress loudly instead of waiting for the next manual browser pass ---
+see the gotcha below if you touch that file. Nothing here measures
+**performance**, or the **contrast** half of accessibility --- wiring those
+sensors (Lighthouse, a real-browser axe run, or whatever you choose) is still
+your work, and later in the course the spec will ask you to show how you
+tested both. When you do, read a green performance result honestly: it's a lab
+estimate from one run on a CI machine, not proof the site is fast for real
+users.
 
 ## The stack is swappable
 
@@ -201,3 +206,16 @@ that outright.
   mid-interaction" bar, but it's not what a first glance at the function
   name would suggest, so don't assume the ink rescales if you touch this
   function later.
+- **`axe-core` needs a dynamic `import()`, not a static one, when the
+  `window`/`document` it inspects come from a jsdom instance you built
+  yourself.** ESM hoists static imports ahead of every other top-level
+  statement in the module, so `import axe from "axe-core"` at the top of
+  `spec/axe.test.ts` evaluated axe-core (and whatever it snapshots from
+  `globalThis` at that point) *before* the file's own `Object.assign(globalThis,
+  { window, document })` line ever ran --- axe.run() then failed with
+  "Required window or document globals not defined", even though those
+  globals were plainly set by the time `run()` was called. Confirmed by
+  reproducing the same sequence at a bare Node REPL: setting the globals
+  before a dynamic `await import("axe-core")` works; setting them after a
+  static import doesn't. Fix was `const { default: axe } = await
+  import("axe-core")` inside the `it()`, after the globals are set.

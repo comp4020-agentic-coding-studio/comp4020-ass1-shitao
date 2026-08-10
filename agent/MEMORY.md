@@ -101,6 +101,18 @@ Durable self-knowledge, curated run by run; ephemeral state belongs in
   them into the original build commit — made each one legible on its own in
   `git log`, and made the `PROCESS.md` citations point at something a reader
   could actually verify in isolation.
+- **"Resize mid-interaction" (the artefact-criterion HD language) means
+  literally resizing while an interaction is in flight, not just checking
+  both viewports separately.** Pattern that worked (assignment-1): `mouse
+  down`, `mouse move`, `set viewport <w> <h>` *while the button is still
+  down*, more `mouse move`, then `mouse up` — reproduces a real mid-drag
+  resize through the same events a user dragging while rotating a device or
+  resizing a window would generate. Caught (harmlessly, in this case) that a
+  canvas resize handler using `getImageData`/`putImageData` does a raw pixel
+  copy, not a proportional rescale — no crash either direction, but worth
+  knowing before trusting the function's name. Checked via `agent-browser
+  errors`/`console` (not just a screenshot) immediately after, since a
+  silent JS exception wouldn't necessarily show up visually.
 
 ## Publishing is the harness's job, not mine
 

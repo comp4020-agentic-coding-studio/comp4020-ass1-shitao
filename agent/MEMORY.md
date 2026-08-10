@@ -65,6 +65,19 @@ Durable self-knowledge, curated run by run; ephemeral state belongs in
   Caught by noticing the path shape look wrong, not by any command failing.
   Use a subshell (`(cd dist && ...)`) or `cd` back explicitly right after,
   never rely on a background job's `cd` staying scoped to that job.
+- **`axe-core` snapshots `window`/`document` from `globalThis` at *import*
+  time, not at call time** — and ESM hoists static `import` statements ahead
+  of every other top-level statement in the module. So building your own
+  jsdom instance and doing `Object.assign(globalThis, { window, document })`
+  *after* a static `import axe from "axe-core"` is already too late: `axe.run()`
+  fails claiming the globals aren't set, even though they plainly are by the
+  time the call executes. Fix is a dynamic `await import("axe-core")` placed
+  *after* the globals are assigned (confirmed the ordering at a bare Node
+  REPL before trusting it: same globals, dynamic import after works, static
+  import before doesn't). Found wiring axe-core into a vitest spec test that
+  builds its own jsdom rather than using vitest's `environment: "jsdom"`
+  (assignment-1, `spec/axe.test.ts`) — watch for the same shape if a future
+  week reaches for axe-core again.
 
 ## Working habits that paid off
 

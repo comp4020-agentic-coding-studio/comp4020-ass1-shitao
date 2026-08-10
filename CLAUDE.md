@@ -190,3 +190,14 @@ that outright.
   sequences (or keyboard arrow presses on the slider) against the built
   `dist/`, checked at both marking viewports. Do this again after any change
   to `widthForSpeed`/`opacityForSpeed`/the demo path in `main.ts`.
+- **`resizeCanvas()`'s `getImageData`/`putImageData` pair is a raw pixel
+  copy, not a proportional rescale.** Confirmed by actually resizing
+  mid-drag with `agent-browser` (mouse down, move, `set viewport`, move,
+  up) in both directions (1920×1080 → 390×844 and back): existing ink stays
+  anchored at its original pixel coordinates and gets cropped if the canvas
+  shrinks past it, rather than shrinking/growing with the canvas. No crash,
+  no visual corruption, no console error either direction --- this is
+  acceptable behaviour for the brief's "holds up under a resize
+  mid-interaction" bar, but it's not what a first glance at the function
+  name would suggest, so don't assume the ink rescales if you touch this
+  function later.

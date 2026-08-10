@@ -166,3 +166,27 @@ catching you out, a fact about the stack that's easy to get wrong --- write it
 down here. Growing this file is the work of harness engineering, and the gap
 between this boilerplate and your own version is part of what your prototype
 says about the developer you're becoming.
+
+## This prototype: the yihua brush studio
+
+The core mechanic is a `<canvas>` ink brush (`main.ts`) whose stroke width
+and opacity are a pure function of drag speed, plus a `<input type="range">`
+that drives the *same* draw function along a fixed path so the interaction
+has a keyboard-operable equivalent, not just a mouse one --- the marking
+rubric checks "the keyboard" explicitly, and a pointer-only canvas fails
+that outright.
+
+- **`vitest`'s jsdom has no real canvas backend** --- `canvas.getContext("2d")`
+  returns `null` there, not a stub. Every draw call in `main.ts` is guarded
+  with `if (ctx)` for exactly this reason: it keeps the *behavioural* DOM
+  state (stroke counter, live status text) updating and testable in
+  `spec/brush.test.ts` even though the actual ink never renders in the test
+  environment. Don't remove the guards to "simplify" the code --- they're
+  load-bearing for the test suite, not defensive clutter.
+- **The real physics still need a real browser.** The jsdom spec test only
+  asserts the static contract (accessible names, labelled slider, live
+  region). Verifying that a slow drag actually pools dark and a fast one
+  actually runs pale requires `agent-browser` with real `mouse move/down/up`
+  sequences (or keyboard arrow presses on the slider) against the built
+  `dist/`, checked at both marking viewports. Do this again after any change
+  to `widthForSpeed`/`opacityForSpeed`/the demo path in `main.ts`.

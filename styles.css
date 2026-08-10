@@ -1,16 +1,154 @@
+:root {
+  --ink: #1a1614;
+  --paper: #f4efe4;
+  --paper-dark: #e9e1cf;
+  --seal: #a13d2f;
+  --line: #cabf9f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  padding: 2rem;
-  font-family: system-ui, sans-serif;
-  line-height: 1.6;
-  color: #1a1a1a;
+  padding: 0 1.25rem 4rem;
+  font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+header {
+  padding: 1.5rem 0 0.5rem;
+}
+
+.brand {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--seal);
+  text-decoration: none;
 }
 
 main {
-  max-width: 40rem;
+  max-width: 42rem;
   margin: 0 auto;
 }
 
+h1 {
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  line-height: 1.25;
+  margin: 0.5rem 0 1rem;
+}
+
+h1 span {
+  color: var(--seal);
+  font-weight: 400;
+}
+
+h2 {
+  font-size: 1.3rem;
+  margin-top: 2.5rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.35rem;
+}
+
+.lede {
+  font-size: 1.1rem;
+}
+
+.instructions,
+.hint {
+  color: #4a4238;
+  font-size: 0.95rem;
+}
+
+.prompt {
+  font-style: italic;
+}
+
 a {
-  color: #0b5fff;
+  color: var(--seal);
+}
+
+section.studio {
+  margin-top: 2rem;
+  padding: 1.25rem;
+  background: var(--paper-dark);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 260px;
+  background: #fbf8f0;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+canvas:focus-visible {
+  outline: 3px solid var(--seal);
+  outline-offset: 2px;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1 1 16rem;
+}
+
+.control label {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+input[type="range"] {
+  width: 100%;
+}
+
+button {
+  font: inherit;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--seal);
+  border-radius: 0.3rem;
+  background: transparent;
+  color: var(--seal);
+  cursor: pointer;
+}
+
+button:hover,
+button:focus-visible {
+  background: var(--seal);
+  color: var(--paper);
+}
+
+.status {
+  margin: 1rem 0 0;
+  font-weight: 700;
+  min-height: 1.5em;
+}
+
+@media (width <= 30rem) {
+  section.studio {
+    padding: 1rem 0.75rem;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }

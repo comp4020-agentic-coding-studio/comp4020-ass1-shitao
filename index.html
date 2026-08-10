@@ -1,23 +1,116 @@
 <!doctype html>
-<html lang="en-AU">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>COMP4020 prototype</title>
+    <title>一畫 — The Single Brushstroke</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <header>
       <nav aria-label="Primary">
-        <a href="./">Home</a>
+        <a class="brand" href="./">一畫</a>
       </nav>
     </header>
     <main>
-      <h1>COMP4020 prototype</h1>
-      <p data-testid="intro">
-        Replace this with your prototype. This week's brief is on the course website;
-        <code>spec/README.md</code> explains how the checks in this repo relate to it.
+      <h1>一畫 <span lang="zh">— yīhuà</span> — the single brushstroke</h1>
+      <p class="lede">
+        In 1710 the monk-painter Shitao wrote that a single brushstroke
+        "defines even that which lies beyond the borders of the universe" —
+        that a thousand hills, ten thousand valleys, a figure, a stand of
+        bamboo, all begin and finish with one continuous line. Draw one below
+        and feel why he thought so.
       </p>
+
+      <section class="studio" aria-labelledby="studio-heading">
+        <h2 id="studio-heading">Draw a stroke</h2>
+        <p class="instructions">
+          Drag slowly and the brush pools — dark, wide, saturated. Drag fast
+          and it runs dry — thin, pale, torn. There is no separate "line
+          weight" tool: speed alone is the whole instrument.
+        </p>
+        <canvas
+          data-testid="brush-canvas"
+          tabindex="0"
+          role="img"
+          aria-label="Ink brush canvas. Drag with a mouse or finger to draw. Use the speed slider below for a keyboard-operable demo stroke."
+        ></canvas>
+        <div class="controls">
+          <div class="control">
+            <label for="speed-slider">Demo stroke speed</label>
+            <input
+              type="range"
+              id="speed-slider"
+              data-testid="speed-slider"
+              min="1"
+              max="100"
+              value="50"
+              aria-describedby="speed-help"
+            />
+            <span id="speed-help" class="hint"
+              >No mouse? Move this slider to play a demo stroke at that
+              speed.</span
+            >
+          </div>
+          <button type="button" data-testid="clear-button">Clear canvas</button>
+        </div>
+        <p
+          class="status"
+          data-testid="stroke-status"
+          aria-live="polite"
+          role="status"
+        >
+          No stroke yet — draw one, or move the slider.
+        </p>
+      </section>
+
+      <section aria-labelledby="idea-heading">
+        <h2 id="idea-heading">What the stroke is doing</h2>
+        <p>
+          Shitao's treatise, usually translated as
+          <em>Enlightening Remarks on Painting</em>
+          (畫語錄), makes yihua — "the single brushstroke," sometimes
+          rendered "the holistic brushstroke" — the root every later chapter
+          builds from. It works on two levels at once.
+        </p>
+        <p>
+          The <strong>practical</strong> level is exactly what you just felt:
+          a complete design begins and finishes with one stroke, and its
+          character — dry or saturated, swift or measured — is set by
+          nothing but how the hand moves, not by a separate technique bolted
+          on afterward.
+        </p>
+        <p>
+          The <strong>metaphysical</strong> level is the claim underneath
+          it: that "myriad strokes are reunited in oneness" through the
+          painter's hand and mind, and that this single, primal line is
+          where painting joins the painter's own nature to the nature of
+          things. Shitao's contemporaries were absorbed in copying the
+          perfected "methods" of past masters. He answered them with what
+          he called
+          <a href="#no-method">no-method</a> — a method built from the
+          brushstroke itself, before any rule exists to imitate.
+        </p>
+      </section>
+
+      <section aria-labelledby="no-method-heading" id="no-method">
+        <h2 id="no-method-heading">The method of no-method</h2>
+        <p>
+          "无法而法, 乃为至法" — <em>the method of no method is the perfect
+          method.</em> Shitao didn't mean painting without discipline; he
+          meant that discipline copied from someone else's rulebook stands
+          between you and the stroke, and the stroke is the only teacher
+          that was ever necessary. Every mark you drew above already knew
+          how to be fast or slow, dry or drowned in ink — you didn't consult
+          a rule to make it so.
+        </p>
+        <p class="prompt">
+          Try it once more: draw a full circle without lifting the brush,
+          then draw your name as fast as you can. Same tool, same hand, two
+          completely different strokes — and no rule told either one what to
+          be.
+        </p>
+      </section>
     </main>
     <script type="module" src="./main.ts"></script>
   </body>

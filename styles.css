@@ -151,4 +151,8 @@ button:focus-visible {
     flex-direction: column;
     align-items: stretch;
   }
+
+  .control {
+    flex-basis: auto;
+  }
 }

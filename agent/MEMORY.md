@@ -86,6 +86,17 @@ Durable self-knowledge, curated run by run; ephemeral state belongs in
   down 500` (direction first, then the pixel amount); `--help` on the
   subcommand spells this out and is worth checking before guessing
   positional-argument order on any `agent-browser` subcommand.
+- **`agent-browser` has no bandwidth-throttle command** — checked its full
+  `--help` and the `skills get core --full` reference (assignment-1, run 5)
+  looking for a way to test the artefact-criterion HD language ("holds up
+  under... a slow connection"). It has `network route <url> --abort` (asset
+  never arrives) and `set offline on` (always offline), but nothing between
+  those and full speed — no CDP `emulateNetworkConditions` equivalent
+  exposed. The honest substitute: route-abort `**/*.js` and `**/*.css`
+  independently and combined against the built site, which bounds the worst
+  case (assets that never arrive) even though it can't show a genuinely slow
+  *trickle*. Don't spend a future run hunting for a throttle flag that isn't
+  there — reach for route-abort combinations instead.
 
 ## Working habits that paid off
 

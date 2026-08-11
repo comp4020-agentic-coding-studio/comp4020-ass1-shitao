@@ -1,4 +1,4 @@
-# Hand-off --- after run 3 on Assignment 1, deepen stage (148h → ~146h to cutoff)
+# Hand-off --- after run 4 on Assignment 1, deepen stage (141h → ~139h to cutoff)
 
 **Deliverable:** `comp4020-ass1-shitao`. Due noon Mon 17 Aug 2026
 (Australia/Canberra). Individual, 20% of the course, three criteria
@@ -7,79 +7,80 @@ The week 4 crit (`crits/03-a1-retro`) reads `reflections/assignment-1.md`
 directly as the retro entry.
 
 **State at start of this run:** repo had a complete, deepened build from
-runs 1--2 (the 一畫/yīhuà ink-brush explainer), `pnpm check` 20/20 green,
-resize-mid-drag/keyboard/slow-connection/HD-reread all verified. Run 2's
-hand-off had exhausted its deepen list and explicitly said: look for a new
-angle, and specifically watch for a genuine harness-level correction to
-give `PROCESS.md` a third moment (its first two, from run 1, were real but
-not harness-level). Tip was `2a8b7e1` locally; `origin/main` had since
-advanced to `3d89153` via the harness's own tick-snapshot push (not a push
-I made --- expected per the "out-of-band commits are normal" and
-"publishing is the harness's job" notes in `MEMORY.md`).
+runs 1--3 (the 一畫/yīhuà ink-brush explainer) with `PROCESS.md` at three
+moments (591 words) and `pnpm check` 21/21 green. Tip was `1c48777` locally;
+`origin/main` had advanced to `39eabdc` via the harness's own tick-snapshot
+push (expected, not a push I made). Run 3's hand-off said the punch list
+(resize, slow-connection, HD-reread, one harness correction) was exhausted
+and asked the next run to either reread the explainer prose for the HD
+"response to brief" band, or find a second harness-level correction if one
+turned up naturally.
 
 **What this run did:**
 
-- Fetched the current brief (unchanged in substance from what run 1--2
-  worked from) and reread it against the site with fresh eyes --- still
-  holds: one idea, one mechanic, personal point of view.
-- Re-ran `pnpm check` cold: still 20/20 green, confirmed nothing regressed.
-- Found the harness-level correction the last hand-off asked for:
-  **accessibility checking was a manual, repeat-by-hand `agent-browser`
-  step with no automated backstop.** Added `spec/axe.test.ts`, which runs
-  axe-core's structural rules (color-contrast disabled --- jsdom has no
-  paint engine to resolve it reliably) against the built `dist/index.html`
-  inside `pnpm check`, so a real accessibility regression now fails the
-  same roster as a broken build
-  ([`a2b4e8c`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-shitao/commit/a2b4e8c)).
-- Hit and diagnosed a real bug getting there: axe-core reads `window`/
-  `document` from `globalThis` at *import* time, and ESM hoists static
-  imports ahead of the rest of the module, so a static `import axe from
-  "axe-core"` evaluated before this file's own jsdom-globals assignment ever
-  ran. Confirmed the mechanism at a bare Node REPL (dynamic import after
-  setting globals works, static import before doesn't) before fixing it ---
-  didn't just guess-and-check. Fixed by deferring to a dynamic
-  `await import("axe-core")` inside the test. Documented as a tooling
-  gotcha in both this repo's `CLAUDE.md` and the global `MEMORY.md`, since
-  it'll bite again anywhere axe-core meets a hand-built jsdom instance.
-- Verified the new test isn't a rubber stamp: temporarily stripped the
-  canvas's `aria-label` from the built HTML, confirmed the test failed with
-  a legible `role-img-alt` message, restored `dist/`, reran `pnpm check`
-  green before committing.
-- Wrote this up as `PROCESS.md`'s third moment (591 words total, within the
-  400--600 band) and committed
-  ([`1c48777`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-shitao/commit/1c48777)).
-  This is the genuine harness-level moment the last two hand-offs were
-  waiting for --- a check wired up, not a retry.
+- Refetched the brief and marking bands in full (they're unchanged from
+  runs 1--3). Reread `index.html`'s prose fresh: the yihua/speed-as-
+  sole-instrument idea already reads as pointed and well-scoped against the
+  HD "response to brief" band --- didn't touch it, since adding more would
+  risk the brief's own "one idea... nothing else" discipline more than it
+  would help.
+- Did a full real-browser pass with `agent-browser` against the built
+  `dist/` (it had been three runs since the last one, right at the edge of
+  what `MEMORY.md`'s standing lesson tolerates): mouse-drag physics (slow →
+  thick/dark, fast → thin/pale) confirmed correct at 1920×1080; the full
+  keyboard slider range (Home/End) confirmed both classification extremes;
+  tab order confirmed correct (brand link → canvas → slider → clear button);
+  phone viewport (390×844) confirmed no overflow and the same drag physics
+  working via simulated pointer events. No console errors either viewport.
+  Nothing was broken --- this was confirmation, not a fix.
+- Found the second harness-level correction run 3 left room for: this
+  repo's own `CLAUDE.md` had been asserting, since the axe-core moment,
+  that "nothing here measures... the contrast half of accessibility" ---
+  true when written, but a standing disclaimer rather than a closed gap.
+  Added `spec/contrast.test.ts`
+  ([`0f1f224`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-shitao/commit/0f1f224)),
+  which reads the real `:root` palette straight out of `styles.css` (regex,
+  not a hardcoded duplicate, so a palette edit can't go unnoticed) and
+  checks every actual text/background pair the page uses against the
+  correct WCAG AA threshold for its size. Verified it wasn't a rubber stamp
+  by temporarily weakening `--seal` and confirming five pairs failed with
+  their real computed ratios, before restoring the file. `pnpm check` is now
+  31/31 green (up from 21).
+- Updated this repo's `CLAUDE.md`
+  ([`75dcaa8`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-shitao/commit/75dcaa8))
+  so the checks section reflects what's actually measured now, instead of
+  leaving the stale "not measured" claim standing next to a check that now
+  measures it.
+- Rewrote `PROCESS.md` to add this as a fourth moment, trimming the existing
+  three moments' prose to make room and land back inside the 400--600 word
+  band (598 words)
+  ([`d24f75a`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-shitao/commit/d24f75a)).
+  Ran `pnpm check:evidence` after --- it correctly still fails only on the
+  missing reflection, confirming the citations resolve.
 
-**Not done (deliberately, still 146h out, nowhere near the 24h gate):**
+**Not done (deliberately, still 139h out, nowhere near the 24h gate):**
 
-- `reflections/assignment-1.md` still doesn't exist. `pnpm check:evidence`
-  correctly still fails on this. Even though the moment that earns the
-  reflection's breakthrough now exists, doctrine gates *writing* the
-  reflection to the "Finishing steps (inside 24h)" list, not to "once a
-  good moment exists" --- so don't draft it yet. Note the moment for when
-  the time comes: the axe-core/ESM-import-hoisting fix (commits
-  `a2b4e8c`, `1c48777`).
-- No push. Tip is now `1c48777`, committed locally only, per doctrine's
-  inside-24h gate. (Same caveat as before: the harness's tick-snapshot
-  commit will likely push this to `origin/main` anyway on its own
-  schedule --- that's expected, not a violation.)
-- Did not reopen `agent-browser` this run --- no rendering-affecting code
-  changed (only test/process files), so a repeat visual pass wasn't
-  warranted this time. Don't let this stretch past a run or two without a
-  real browser check per the standing lesson in `MEMORY.md` (about content
-  changes) --- but note this run's exemption was for a genuinely
-  non-visual change, not routine skipping.
+- `reflections/assignment-1.md` still doesn't exist, and doctrine gates
+  writing it to inside the 24h finishing window even though the moment that
+  will anchor its breakthrough now exists. Two real candidates now: the
+  axe-core/ESM-import-hoisting fix (`a2b4e8c`, `1c48777`), or the contrast
+  check closing this run's own `CLAUDE.md` gap (`0f1f224`, `75dcaa8`,
+  `d24f75a`). Decide which is the stronger breakthrough story when you
+  actually draft it --- don't decide now.
+- No push. Tip is now `d24f75a`, committed locally only, per doctrine's
+  inside-24h gate. (The harness's tick-snapshot commit will likely push this
+  to `origin/main` on its own schedule regardless --- expected, not a
+  violation.)
 
-**Most important next action:** still 146h out --- there's no urgency, but
-there also isn't an obvious next deepening target now that the last two
-hand-offs' punch lists (resize, slow-connection, HD-reread, harness
-correction) are all done. Next run should reread the explainer prose itself
-for whether it's saying something surprising enough for the HD "response to
-brief" band (not just re-verify mechanics again), and keep an eye out for
-either (a) a second harness-level correction --- `PROCESS.md` can hold
-3--4 moments, so there's room for one more --- or (b) accept 3 moments as
-sufficient and start turning attention toward whether the reflection's
-eventual breakthrough needs anything more than the axe-core story. Do not
-draft `reflections/assignment-1.md` or push until inside the 24h finishing
-window.
+**Most important next action:** `PROCESS.md` is now at 4 moments (its cap)
+and 598 words (near the top of the 400--600 band) --- don't add a fifth
+without cutting one of the existing four first. The remaining known gap
+named in `CLAUDE.md` is **performance** (Lighthouse or equivalent), which
+the file itself says is still "your work" and the spec will ask for later
+in the course --- not necessarily assignment-1's job, so don't manufacture
+urgency there. With the punch list and both harness-correction slots now
+used, the next few runs' real job is: (a) keep the periodic real-browser
+pass going (don't let it lapse the way it did between runs 10--13 on the
+crit before this one), (b) watch for anything a fresh rereading of the
+brief's HD bands surfaces that this run's read missed, and (c) hold off on
+the reflection and the push until inside 24h.

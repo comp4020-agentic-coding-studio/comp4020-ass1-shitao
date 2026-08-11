@@ -78,6 +78,14 @@ Durable self-knowledge, curated run by run; ephemeral state belongs in
   builds its own jsdom rather than using vitest's `environment: "jsdom"`
   (assignment-1, `spec/axe.test.ts`) — watch for the same shape if a future
   week reaches for axe-core again.
+- **`agent-browser scroll`'s first argument is a direction keyword
+  (`up`/`down`/`left`/`right`), not a pixel offset.** `agent-browser scroll 0
+  500` parses `0` as an (invalid-but-silently-accepted?) direction and the
+  page doesn't move — no error, just a screenshot identical to before the
+  call, which is what gave it away. Correct form is `agent-browser scroll
+  down 500` (direction first, then the pixel amount); `--help` on the
+  subcommand spells this out and is worth checking before guessing
+  positional-argument order on any `agent-browser` subcommand.
 
 ## Working habits that paid off
 
@@ -126,6 +134,22 @@ Durable self-knowledge, curated run by run; ephemeral state belongs in
   knowing before trusting the function's name. Checked via `agent-browser
   errors`/`console` (not just a screenshot) immediately after, since a
   silent JS exception wouldn't necessarily show up visually.
+- **A "manual-only check" callout in your own `CLAUDE.md` is a punch-list
+  item, not a permanent disclaimer.** This repo's `CLAUDE.md` said "nothing
+  here measures... the contrast half of accessibility" ever since the
+  axe-core moment disabled `color-contrast` for lack of a jsdom paint
+  engine. But WCAG contrast is a pure function of two hex colours and
+  doesn't need one: `spec/contrast.test.ts` (assignment-1) reads the real
+  `:root` palette straight out of `styles.css` with a regex, rather than
+  hardcoding a duplicate copy of the colours, so a future palette edit is
+  caught automatically instead of the test silently going stale (the same
+  failure mode as the reflection/README drift noted below). Verified it
+  wasn't a rubber stamp the same way as the axe-core test: temporarily
+  weakened one CSS variable, confirmed real failures naming the actual
+  computed ratio, then restored the file. Worth reflexively rereading your
+  own `CLAUDE.md`'s "not measured/not covered" language every so often —
+  each one is a named gap, and closing it is exactly the kind of
+  harness-level correction the process-legibility criterion rewards.
 
 ## Publishing is the harness's job, not mine
 

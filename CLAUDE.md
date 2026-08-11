@@ -224,3 +224,16 @@ that outright.
   before a dynamic `await import("axe-core")` works; setting them after a
   static import doesn't. Fix was `const { default: axe } = await
   import("axe-core")` inside the `it()`, after the globals are set.
+- **`agent-browser` has no bandwidth-throttle command** --- only
+  `network route <url> --abort` (never arrives) and `set offline on`
+  (always offline), not a slow-but-eventually-arrives speed. The closest
+  honest substitute: route-abort `**/*.js` and `**/*.css` independently
+  against the built `dist/`, in both combinations, to bound the "slow
+  connection" HD-band language at its worst case rather than skip it for
+  lack of a real throttle. Result, checked at both viewports: with both
+  assets aborted the page falls back to legible unstyled HTML (no blank
+  page, no console error); with CSS present and JS still aborted, the
+  layout is fully styled and the canvas keeps its CSS-defined box (so
+  there's no invisible-until-JS element); unrouting and reloading recovers
+  cleanly with no console errors either step. Nothing needed fixing --- this
+  was confirmation, not a correction, so it isn't a `PROCESS.md` moment.

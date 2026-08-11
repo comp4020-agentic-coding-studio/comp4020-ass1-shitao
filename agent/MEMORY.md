@@ -222,3 +222,20 @@ runs in a row on the assumption that nothing rendering-related could have
 changed when nothing else changed either — this run had zero upstream
 commits and still found a real bug that had presumably been there since
 whenever the about page's image was added).
+
+Third confirmation, this time in assignment-1 itself (run 6, 124h to
+cutoff): five prior runs (2–5) had called the yīhuà build "content-complete,
+nothing to fix" on the strength of 31/31 green checks alone, without a
+fresh screenshot pass. A phone-viewport (390×844) screenshot caught a
+dead ~150px gap between the speed slider and the "Clear canvas" button,
+fixed in `ae3df16`. Same shape as the about-page bug: a pure CSS/layout
+defect no automated check (typecheck/build/lint/axe/contrast/vitest) can
+see, because none of them render at a real viewport. The specific CSS
+trap: `.control` had `flex: 1 1 16rem` sized for the desktop row layout;
+the mobile media query flipped the container to `flex-direction: column`
+but left that basis in place, and a flex-basis always sizes along
+whatever the *current* main axis is — under column layout, "16rem" became
+a 256px minimum **height** around ~100px of real content, not a width.
+Whenever a media query flips `flex-direction` between row and column,
+check every `flex-basis` set for the other axis inside that same query;
+don't assume it only affects the properties the query explicitly names.

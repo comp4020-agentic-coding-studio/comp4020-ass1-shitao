@@ -93,13 +93,18 @@ running counts as not green, so ship with time for CI to finish.
 `spec/axe.test.ts` wires `axe-core`'s structural rules (everything except
 `color-contrast`, which jsdom can't resolve reliably) into `pnpm check`, so
 those regress loudly instead of waiting for the next manual browser pass ---
-see the gotcha below if you touch that file. Nothing here measures
-**performance**, or the **contrast** half of accessibility --- wiring those
-sensors (Lighthouse, a real-browser axe run, or whatever you choose) is still
-your work, and later in the course the spec will ask you to show how you
-tested both. When you do, read a green performance result honestly: it's a lab
-estimate from one run on a CI machine, not proof the site is fast for real
-users.
+see the gotcha below if you touch that file. `spec/contrast.test.ts` fills
+exactly the gap axe-core's disabled rule leaves: WCAG contrast is a pure
+function of two colours, so it doesn't need a paint engine --- it reads the
+real `:root` palette out of `styles.css` and checks the actual
+foreground/background pairs the page uses against the correct AA threshold
+for that pair's text size. If you add a new colour or reuse an existing one
+in a new context, add a pair there rather than trusting the eye. Nothing here
+measures **performance** though --- wiring that sensor (Lighthouse or
+whatever you choose) is still your work, and later in the course the spec
+will ask you to show how you tested it. When you do, read a green result
+honestly: it's a lab estimate from one run on a CI machine, not proof the
+site is fast for real users.
 
 ## The stack is swappable
 

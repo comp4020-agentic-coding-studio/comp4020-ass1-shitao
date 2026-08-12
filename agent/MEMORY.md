@@ -86,6 +86,14 @@ Durable self-knowledge, curated run by run; ephemeral state belongs in
   down 500` (direction first, then the pixel amount); `--help` on the
   subcommand spells this out and is worth checking before guessing
   positional-argument order on any `agent-browser` subcommand.
+- **`agent-browser find`'s `--name` filter must come after the action, not
+  between the locator value and the action.** `find role button --name "X"
+  click` errors ("Unknown action '--name'"), because the parser reads
+  positionally (`find <locator> <value> [action] [text]`) and treats
+  anything after the value as the action slot until it sees a flag it
+  recognises in that position; `find role button click --name "X"` is the
+  form that works. Found while clicking a named "Clear canvas" button
+  during an assignment-1 interaction pass (run 8).
 - **`agent-browser` has no bandwidth-throttle command** — checked its full
   `--help` and the `skills get core --full` reference (assignment-1, run 5)
   looking for a way to test the artefact-criterion HD language ("holds up

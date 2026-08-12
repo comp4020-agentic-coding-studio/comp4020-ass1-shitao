@@ -1,4 +1,4 @@
-# Hand-off --- after run 7 on Assignment 1, deepen stage (117h → ~116h to cutoff)
+# Hand-off --- after run 8 on Assignment 1, deepen stage (111h → ~110h to cutoff)
 
 **Deliverable:** `comp4020-ass1-shitao`. Due noon Mon 17 Aug 2026
 (Australia/Canberra). Individual, 20% of the course, three criteria
@@ -6,60 +6,58 @@
 The week 4 crit (`crits/03-a1-retro`) reads `reflections/assignment-1.md`
 directly as the retro entry.
 
-**State at start of this run:** repo clean, tip `82795c0` matching
-`origin/main` (a harness tick-snapshot commit that had already pushed run
-6's `ae3df16` mobile fix out-of-band --- expected, not a doctrine issue,
-per `MEMORY.md`'s out-of-band-commits note). Run 6's hand-off said to keep
-doing fresh screenshot passes and not let them lapse, but flagged nothing
-outstanding otherwise.
+**State at start of this run:** repo clean, tip `153c758` matching
+`origin/main` (a harness tick-snapshot commit on top of run 7's state ---
+no new work had landed since run 7's verification-only pass). Run 7's
+hand-off said the artefact was stable and to keep periodic real-browser
+passes from lapsing.
 
 **What this run did (verification only, no commits):**
 
-- Refetched the brief/spec JSON --- unchanged from runs 1--6.
-- `git log`/`git status`: confirmed the above, nothing surprising.
-- Ran `pnpm check` (31/31 green), `pnpm check:evidence` (fails only on the
-  still-gated missing `reflections/assignment-1.md`, exactly as expected
-  this far from cutoff), and `pnpm dlx linkinator ./dist --silent` against
-  a fresh build (3 links, all resolve) --- the two checks CLAUDE.md notes
-  as CI-only/local-only that hadn't been explicitly re-run in a few runs.
-- Rather than redoing run 6's full interaction-based browser pass
-  immediately (low marginal value 6h after it was last done), did a
-  lighter but still real verification: served `dist/` locally, opened it
-  in `agent-browser` at the phone viewport (390×844), and screenshotted
-  the controls area specifically --- confirmed run 6's flex-basis fix
-  still holds (slider → hint → Clear canvas → status all tightly packed,
-  no dead gap) and `agent-browser console`/`errors` came back empty. This
-  was checking a memory claim before trusting it forward, not a fresh
-  discovery pass.
-- Hit the documented `cd`-inside-a-backgrounded-command gotcha again
-  (`(cd dist && python3 -m http.server ... &)` left the shell's cwd
-  sitting in `dist/`) --- caught it the same way `MEMORY.md` says to
-  (noticing the path looked wrong), `cd`ed back explicitly, confirmed
-  `git status` clean from the repo root afterward. Didn't add a new memory
-  entry since the existing one already covers this exactly and worked as
-  intended; nothing new to generalise.
-- No new bugs found. No commits this run --- there was nothing to change.
+- Refetched the brief/spec JSON --- unchanged from runs 1--7.
+- `git log`/`git status`: confirmed clean, nothing surprising, nothing new
+  since run 7 beyond a tick-snapshot commit.
+- `pnpm check`: 31/31 green.
+- Did the fuller interaction-based browser pass that had lapsed since run 6
+  (run 7 only did a light phone-screenshot spot-check): served `dist/`
+  locally, opened in `agent-browser` at desktop (1920×1080), confirmed no
+  console errors on load. Exercised the **keyboard path** explicitly
+  (clicked the slider to focus it, pressed ArrowRight ×3) and confirmed the
+  demo stroke rendered and the live status text updated ("Stroke 3: swift
+  and dry..."), matching the fast/dry visual. Exercised the **mouse-drag +
+  resize-mid-drag** path: `mouse down` → `mouse move` (fast) → `mouse move`
+  → `set viewport 390 844` while still down → `mouse move` → `mouse up`,
+  no console errors either side, canvas kept its responsive box, no crash.
+  Screenshotted phone viewport after: canvas and controls area (slider,
+  hint, Clear canvas, status) still tightly packed with no dead gap ---
+  the `ae3df16` mobile flex-basis fix still holds after this stroke's worth
+  of resize-mid-interaction.
+- New `agent-browser find` gotcha worth noting for future runs (not yet in
+  MEMORY.md): `--name` must come **after** the action, not between the
+  locator value and the action --- `find role button --name "X" click`
+  errors ("Unknown action '--name'"), but `find role button click --name
+  "X"` works. Small enough that a MEMORY.md entry may or may not be worth
+  it next time this bites; flagging here first.
+- No new bugs found. No commits this run --- nothing to change.
 
-**Not done (deliberately, still ~116h out):**
+**Not done (deliberately, still ~110h out):**
 
 - `reflections/assignment-1.md` still doesn't exist --- correctly gated to
-  inside the 24h finishing window. Breakthrough candidates still on the
-  table from run 6's hand-off: the axe-core ESM-import-hoisting fix
+  inside the 24h finishing window. Breakthrough candidates unchanged from
+  run 6/7's hand-off: the axe-core ESM-import-hoisting fix
   (`a2b4e8c`/`1c48777`), the contrast-check gap closure
   (`0f1f224`/`75dcaa8`/`d24f75a`), or the mobile flex-basis fix
   (`ae3df16`). Decide when actually drafting, inside 24h.
-- No push needed beyond what the harness already did out-of-band; nothing
-  local and uncommitted to hold back on anyway this run.
+- No push needed beyond what the harness already does out-of-band.
 
-**Most important next action:** the artefact is genuinely stable ---
-checks green, evidence check behaving as expected, links clean, a live
-phone-viewport pass just confirmed no regression. Don't manufacture new
-scope against a satisfied brief. Keep doing the periodic real-browser
-check (it doesn't need to be every single run, but shouldn't lapse for
-several runs running either); this run's lighter spot-check counts as
-that for this cycle. When a future run lands inside 24h of the 17 Aug noon
+**Most important next action:** the artefact remains genuinely stable ---
+checks green, and this run's full interaction-based pass (keyboard,
+mouse-drag, resize-mid-drag, both viewports) found nothing broken. Don't
+manufacture new scope against a satisfied brief. Keep the periodic
+real-browser check from lapsing across several runs in a row (this run
+resets that clock). When a future run lands inside 24h of the 17 Aug noon
 cutoff, move to the finishing steps: draft `reflections/assignment-1.md`
 (pick one breakthrough from the candidates above), do one final full
 interaction-based browser pass at both viewports (keyboard, resize
-mid-drag, slow-connection substitute), confirm `git status` clean, and
-push.
+mid-drag, slow-connection substitute via route-abort), confirm `git status`
+clean, and push.

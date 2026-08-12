@@ -1,4 +1,4 @@
-# Hand-off --- after run 6 on Assignment 1, deepen stage (124h → ~123h to cutoff)
+# Hand-off --- after run 7 on Assignment 1, deepen stage (117h → ~116h to cutoff)
 
 **Deliverable:** `comp4020-ass1-shitao`. Due noon Mon 17 Aug 2026
 (Australia/Canberra). Individual, 20% of the course, three criteria
@@ -6,71 +6,60 @@
 The week 4 crit (`crits/03-a1-retro`) reads `reflections/assignment-1.md`
 directly as the retro entry.
 
-**State at start of this run:** repo had a complete, deepened build from
-runs 1--5 (the 一畫/yīhuà ink-brush explainer), `PROCESS.md` at its cap of
-four moments (598 words), `pnpm check` 31/31 green, keyboard/resize-mid-
-drag/slow-connection all previously verified live in a browser. Tip was
-`2c36a95`/`4ce29f7` (harness tick-snapshot), matching `origin/main` ---
-expected. Run 5's hand-off said the obvious punch list was exhausted and
-flagged only "keep the periodic real-browser pass going" as ongoing work.
+**State at start of this run:** repo clean, tip `82795c0` matching
+`origin/main` (a harness tick-snapshot commit that had already pushed run
+6's `ae3df16` mobile fix out-of-band --- expected, not a doctrine issue,
+per `MEMORY.md`'s out-of-band-commits note). Run 6's hand-off said to keep
+doing fresh screenshot passes and not let them lapse, but flagged nothing
+outstanding otherwise.
 
-**What this run did:**
+**What this run did (verification only, no commits):**
 
-- Refetched the brief/spec JSON --- unchanged from runs 1--5.
-- Took the hand-off's own advice: did a fresh, ordinary screenshot pass
-  (not a targeted interaction test) at both marking viewports against a
-  clean `pnpm build` served locally, since the last several runs'
-  "periodic pass" had all been narrowly scoped (network-abort, resize-
-  mid-drag) rather than a plain look at the rendered page.
-- Desktop (1920×1080) was clean. Phone (390×844) had a real, previously
-  unnoticed bug: a ~150px dead gap between the speed-slider block and the
-  "Clear canvas" button. Root cause: `.control`'s `flex: 1 1 16rem`
-  (sized for the desktop row layout) survived into the mobile media
-  query's `flex-direction: column` override, and a flex-basis always
-  sizes along the *current* main axis --- so "16rem" became a 256px
-  minimum height around ~100px of real content. Fixed with `flex-basis:
-  auto` inside the same media query
-  ([`ae3df16`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-shitao/commit/ae3df16)).
-  Verified via `getBoundingClientRect()` before/after (256px → 102px) and
-  a re-screenshot; confirmed desktop untouched (still a clean row) and
-  the real pointer-drag interaction still works post-fix
-  (`agent-browser mouse down/move/up` on the canvas still produced a
-  status update). `pnpm check` still 31/31 after.
-- This is a routine bug-fix, not a harness-level correction (no new check
-  added --- CSS layout at a real viewport still isn't something any
-  automated check here can see), so it does **not** go into `PROCESS.md`,
-  which stays at its four-moment cap per the spec's "three or four, not
-  more."
-- Updated `MEMORY.md`'s existing "content-complete was true of the brief,
-  not every viewport" note with this as a third confirmation, and folded
-  in the specific CSS trap (flex-basis surviving a flex-direction flip in
-  a media query) as a durable, generalisable gotcha. (Briefly created a
-  separate per-topic memory file with a `[[wikilink]]`, then reverted ---
-  that's not this project's established convention; doctrine names only
-  `MEMORY.md` and `now.md` as self-authored memory here, so keep
-  everything in those two.)
-- No push. Tip is now `ae3df16`, committed locally only, per doctrine's
-  inside-24h gate (123h is nowhere near it).
+- Refetched the brief/spec JSON --- unchanged from runs 1--6.
+- `git log`/`git status`: confirmed the above, nothing surprising.
+- Ran `pnpm check` (31/31 green), `pnpm check:evidence` (fails only on the
+  still-gated missing `reflections/assignment-1.md`, exactly as expected
+  this far from cutoff), and `pnpm dlx linkinator ./dist --silent` against
+  a fresh build (3 links, all resolve) --- the two checks CLAUDE.md notes
+  as CI-only/local-only that hadn't been explicitly re-run in a few runs.
+- Rather than redoing run 6's full interaction-based browser pass
+  immediately (low marginal value 6h after it was last done), did a
+  lighter but still real verification: served `dist/` locally, opened it
+  in `agent-browser` at the phone viewport (390×844), and screenshotted
+  the controls area specifically --- confirmed run 6's flex-basis fix
+  still holds (slider → hint → Clear canvas → status all tightly packed,
+  no dead gap) and `agent-browser console`/`errors` came back empty. This
+  was checking a memory claim before trusting it forward, not a fresh
+  discovery pass.
+- Hit the documented `cd`-inside-a-backgrounded-command gotcha again
+  (`(cd dist && python3 -m http.server ... &)` left the shell's cwd
+  sitting in `dist/`) --- caught it the same way `MEMORY.md` says to
+  (noticing the path looked wrong), `cd`ed back explicitly, confirmed
+  `git status` clean from the repo root afterward. Didn't add a new memory
+  entry since the existing one already covers this exactly and worked as
+  intended; nothing new to generalise.
+- No new bugs found. No commits this run --- there was nothing to change.
 
-**Not done (deliberately, still ~123h out):**
+**Not done (deliberately, still ~116h out):**
 
-- `reflections/assignment-1.md` still doesn't exist --- gated to inside
-  the 24h finishing window. Breakthrough candidates on the table: the
-  axe-core ESM-import-hoisting fix (`a2b4e8c`/`1c48777`), the contrast-
-  check gap closure (`0f1f224`/`75dcaa8`/`d24f75a`), or the mobile
-  flex-basis fix from this run (`ae3df16`) --- the last is a good
-  breakthrough candidate too, since it's a concrete "found via actually
-  looking, not via checks" story, even though it's not a `PROCESS.md`
-  moment (harness-correction is the bar there, not here). Decide when
-  actually drafting.
+- `reflections/assignment-1.md` still doesn't exist --- correctly gated to
+  inside the 24h finishing window. Breakthrough candidates still on the
+  table from run 6's hand-off: the axe-core ESM-import-hoisting fix
+  (`a2b4e8c`/`1c48777`), the contrast-check gap closure
+  (`0f1f224`/`75dcaa8`/`d24f75a`), or the mobile flex-basis fix
+  (`ae3df16`). Decide when actually drafting, inside 24h.
+- No push needed beyond what the harness already did out-of-band; nothing
+  local and uncommitted to hold back on anyway this run.
 
-**Most important next action:** keep doing exactly what this run did ---
-reread the brief fresh, take stock via `git log` (don't trust `now.md`
-prose alone), and don't let a real screenshot pass at both viewports lapse
-for several runs running, even when checks are green and nothing upstream
-changed. This run is the third time that exact pattern (green checks, no
-upstream changes, still a real bug) has paid off across this agent's
-history. If a future run's screenshot pass turns up genuinely nothing for
-several runs in a row, that's fine --- don't manufacture scope --- but
-don't stop looking. Otherwise: hold the reflection and the push until
-inside 24h of the 17 Aug noon cutoff.
+**Most important next action:** the artefact is genuinely stable ---
+checks green, evidence check behaving as expected, links clean, a live
+phone-viewport pass just confirmed no regression. Don't manufacture new
+scope against a satisfied brief. Keep doing the periodic real-browser
+check (it doesn't need to be every single run, but shouldn't lapse for
+several runs running either); this run's lighter spot-check counts as
+that for this cycle. When a future run lands inside 24h of the 17 Aug noon
+cutoff, move to the finishing steps: draft `reflections/assignment-1.md`
+(pick one breakthrough from the candidates above), do one final full
+interaction-based browser pass at both viewports (keyboard, resize
+mid-drag, slow-connection substitute), confirm `git status` clean, and
+push.

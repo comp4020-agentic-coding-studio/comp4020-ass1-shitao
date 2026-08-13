@@ -1,4 +1,4 @@
-# Hand-off --- after run 11 on Assignment 1, deepen stage (87h to cutoff)
+# Hand-off --- after this run on Assignment 1, deepen stage (76h to cutoff)
 
 **Deliverable:** `comp4020-ass1-shitao`. Due noon Mon 17 Aug 2026
 (Australia/Canberra). Individual, 20% of the course, three criteria
@@ -6,66 +6,52 @@
 The week 4 crit (`crits/03-a1-retro`) reads `reflections/assignment-1.md`
 directly as the retro entry.
 
-**State at start of this run:** repo clean, tip `3f1f051` (tick-snapshot).
-No content commits since `ae3df16` (run 6's mobile flex-basis fix). Runs
-7--9 and this run (11) were verification-only; run 10 (~93h to cutoff, a
-few hours before this run) added the last fresh independent full browser
-pass --- see its detail below, still current.
+**State at start of this run:** repo clean, tip `aa1cd2d` (tick-snapshot).
+No content commits since `ae3df16` (run 6's mobile flex-basis fix, still
+the most recent content commit). Refetched the brief/spec JSON --- byte-
+for-byte unchanged from every prior run.
 
-**Run 10's full interaction pass (still the most recent one, results
-still holding):**
+**This run did a fresh, independent full browser pass** (not just trusting
+memory's account of run 10's), since ~17h had passed since run 10's pass and
+the previous run (11) had deliberately skipped repeating it:
 
-- Desktop (1920×1080) and mobile (390×844) screenshots: clean, no
-  overflow, the mobile controls-gap fix from `ae3df16` holding.
-- Real slow mouse-drag on the canvas (move/down/move+sleep/up): wide dark
-  stroke, status read "measured and dark --- a slow, deliberate line."
-- Keyboard path: focused the slider, ArrowRight x3 --- status read "swift
-  and dry," focus outline visible.
-- Resize mid-drag (mouse down, move, `set viewport` 1920×1080 → 390×844
-  mid-gesture, move, up): no crash, no console errors, canvas box adapted.
-  Same raw-pixel-copy ink behaviour as documented in `CLAUDE.md` --- not a
-  new finding.
-- Reread `index.html`: the "no-method" section ties Shitao's own doctrine
-  (无法而法，乃为至法) to the interaction itself --- still a pointed,
-  on-brief answer, not just a working canvas.
+- `pnpm check`: 31/31 green, same as every prior run.
+- Desktop (1920×1080): clean render, no console errors, screenshot matches
+  prior runs.
+- Real slow mouse-drag on canvas (move/down/move+sleep×2/up): wide, dark,
+  saturated stroke; status read "measured and dark --- a slow, deliberate
+  line." Confirms `widthForSpeed`/`opacityForSpeed` still behave correctly.
+- Mobile (390×844): clean render top-to-bottom, no overflow, no dead gap
+  in the controls area --- `ae3df16`'s fix still holding.
+- Keyboard path on mobile: clicked the slider to focus it, three
+  `ArrowRight` presses, focus ring visible, demo path drew a thin pale
+  wavy line, status read "swift and dry --- the ink barely touched the
+  paper." Keyboard-operable equivalent confirmed working.
+- No console errors at any point in the pass.
 
-**This run (11, 87h to cutoff) did, verification only, no commits:**
+Result: everything matches run 10's findings exactly. This closes the
+"don't let the browser check lapse for several runs" gap --- two runs in a
+row (10 and this one) now have independent live confirmation, not just one
+run's finding taken on faith by several verification-only runs after it.
 
-- Refetched the brief/spec JSON --- unchanged from runs 1--10.
-- `git log`/`git status`: clean, nothing new beyond tick-snapshots since
-  run 10.
-- `pnpm check`: 31/31 green, same as run 10.
-- Reread `PROCESS.md`: still 598/600 words, still four moments, unchanged.
-  A future run must not add a fifth moment or expand existing prose
-  without trimming something first, or the 400--600-word constraint
-  breaks.
-- Deliberately did **not** repeat the full `agent-browser` interaction
-  pass. Run 10 did one only a few hours before this run started (93h to
-  cutoff there vs 87h here) and nothing changed in that window --- no
-  commits, no upstream edits. Redoing it now would just re-check the exact
-  same rendered bytes run 10 already checked live: that's the
-  "manufactured scope" the doctrine warns against, not the "lapsed for
-  several runs in a row" gap the MEMORY.md rule actually guards against.
+**Not done (deliberately, still ~76h out, correctly gated):**
 
-**Not done (deliberately, still ~87h out):**
+- `reflections/assignment-1.md` still doesn't exist. Breakthrough
+  candidates unchanged: the axe-core ESM-import-hoisting fix
+  (`a2b4e8c`/`1c48777`), the contrast-check gap closure
+  (`0f1f224`/`75dcaa8`/`d24f75a`), or the mobile flex-basis fix (`ae3df16`).
+- `PROCESS.md` unchanged: 598/600 words, four moments. A future run adding
+  a fifth moment must trim existing prose first or the 400--600-word
+  constraint breaks.
+- No push beyond what the harness does out-of-band via tick-snapshots.
 
-- `reflections/assignment-1.md` still doesn't exist --- correctly gated to
-  the 24h finishing window. Breakthrough candidates unchanged: the
-  axe-core ESM-import-hoisting fix (`a2b4e8c`/`1c48777`), the contrast-check
-  gap closure (`0f1f224`/`75dcaa8`/`d24f75a`), or the mobile flex-basis fix
-  (`ae3df16`).
-- No push needed beyond what the harness already does out-of-band.
-
-**Most important next action:** the artefact is stable and
-content-complete, independently reverified at runs 8 and 10 across eleven
-total runs, with this run confirming nothing has drifted since. Don't
-manufacture new scope against a satisfied brief --- the brief itself
-rewards a small, carried-through idea, and this site is one. A future run
-should do a fresh full browser pass again only once real time or commits
-have actually accumulated since run 10's pass, not on every run by
-default. When a future run lands inside 24h of the 17 Aug noon cutoff,
-move to the finishing steps: draft `reflections/assignment-1.md` (pick one
-breakthrough from the candidates above, mind the 150--300 word count,
-separate from `PROCESS.md`'s own 598-word usage), do one final full
-interaction-based browser pass at both viewports, confirm `git status`
-clean, and push.
+**Most important next action:** the artefact is genuinely stable, not just
+assumed so --- independently reverified this run, not merely re-read from
+memory. Don't manufacture new scope against a satisfied brief. A future run
+should do another fresh full browser pass only once meaningful time or any
+commits have accumulated since this run's pass, not by default every run.
+When a future run lands inside 24h of the 17 Aug noon cutoff, move to the
+finishing steps: draft `reflections/assignment-1.md` (pick one breakthrough
+candidate above, mind the 150--300 word count, keep it distinct from
+`PROCESS.md`'s own prose), do one final full interaction-based browser pass
+at both viewports, confirm `git status` clean, and push.

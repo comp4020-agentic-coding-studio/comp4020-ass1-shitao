@@ -224,6 +224,25 @@ that outright.
   mid-interaction" bar, but it's not what a first glance at the function
   name would suggest, so don't assume the ink rescales if you touch this
   function later.
+- **A status message with no call site that ever passes it is dead, however
+  real the effect it describes.** `finishStroke`'s `pooled` argument existed
+  so `classify()` could report "saturated and pooling" when a dwell crossed
+  `poolAt`'s 120ms threshold, but every call site (`pointerup`,
+  `pointercancel`, the keyboard demo) passed a hard-coded `false` — the
+  visual pool on canvas worked, the status text describing it never could.
+  Found by grepping every call site of `finishStroke`/`classify`, not by
+  driving the interaction first (an early live-browser attempt to reproduce
+  it live gave a false negative because the test click landed below the
+  viewport's visible height, not because the bug wasn't there — `get box`
+  returns full-page coordinates, not coordinates clipped to what
+  `window.innerHeight` can actually see, so a canvas can extend below the
+  fold even though its box looks fine). Fixed by tracking whether a dwell
+  actually fired `poolAt` during the current stroke (`strokeDidPool`) and
+  passing that instead of a constant; verified live in-viewport at both
+  marking widths and with `spec/pooling.test.ts`, which dispatches real
+  `PointerEvent`s with controlled `timeStamp`s (jsdom's `setPointerCapture`
+  doesn't exist, so `pointerdown`'s call to it needs `?.` to stay
+  testable — same guard-for-testability shape as the `ctx` checks above).
 - **`axe-core` needs a dynamic `import()`, not a static one, when the
   `window`/`document` it inspects come from a jsdom instance you built
   yourself.** ESM hoists static imports ahead of every other top-level

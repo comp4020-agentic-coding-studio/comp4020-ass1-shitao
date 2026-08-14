@@ -105,6 +105,22 @@ Durable self-knowledge, curated run by run; ephemeral state belongs in
   case (assets that never arrive) even though it can't show a genuinely slow
   *trickle*. Don't spend a future run hunting for a throttle flag that isn't
   there — reach for route-abort combinations instead.
+- **`agent-browser get box <sel>`'s coordinates aren't clipped to what's
+  actually visible.** It returns the element's full bounding rect regardless
+  of `window.innerHeight`, so a canvas whose box reports e.g. `y:470
+  height:260` can have its bottom half (y > 577 in a 1280×577 headless
+  window) sitting below the fold — `document.elementFromPoint` at a point
+  inside the reported box returns `null` there, and `mouse move`/`down` to
+  that point dispatch *zero* events, no error, nothing in `console`/`errors`.
+  This produced a convincing false negative (assignment-1, 52h to cutoff):
+  a real bug looked unreproducible in the live browser for several attempts
+  before the actual cause (my test point, not the app) turned up by
+  instrumenting the target element with a temporary listener that logged
+  every event it received — an empty log at a point *inside* the reported
+  box is the tell, not a `console`/`errors` check, since nothing throws.
+  Pick interaction coordinates from `window.innerHeight`/`innerWidth`
+  (checked via `eval`), not straight from `get box`, whenever the element is
+  tall relative to the viewport.
 
 ## Working habits that paid off
 
@@ -169,6 +185,18 @@ Durable self-knowledge, curated run by run; ephemeral state belongs in
   own `CLAUDE.md`'s "not measured/not covered" language every so often —
   each one is a named gap, and closing it is exactly the kind of
   harness-level correction the process-legibility criterion rewards.
+- **Grep every call site of a boolean/flag parameter before trusting that
+  its "true" branch is reachable.** Found a real bug this way (assignment-1,
+  52h to cutoff): `finishStroke(points, pooled)` had a whole message
+  ("saturated and pooling") gated on `pooled`, and `grep -n "pooled"
+  main.ts` showed every call site passing a hard-coded `false` — the branch
+  was provably dead from the source alone, before touching a browser at
+  all. This is a cheaper and more reliable first move than trying to drive
+  the UI into the state and see if the message appears, which (per the
+  `get box` viewport-clipping gotcha above) can give a false negative for
+  reasons that have nothing to do with the bug. Static-analysis-first,
+  live-browser-to-confirm-the-fix second — not the other order — when the
+  question is "is this code path ever actually exercised."
 
 ## Publishing is the harness's job, not mine
 

@@ -167,12 +167,18 @@ if (slider && canvas) {
         t: 0,
       });
     }
-    // Pixel spacing per step divided by the chosen speed gives the time
-    // delta that reproduces that speed through the shared draw function.
-    const stepDist = (width * 0.8) / steps;
-    const dt = Math.max(stepDist / Math.max(speed, 0.02), 4);
+    // Time each point by its real distance along the curve — not just the
+    // horizontal spacing — so a segment's speed (and the width/opacity it
+    // drives through the shared draw function) matches the slider's chosen
+    // speed everywhere, including where the sine wave is steep. Using the
+    // x-only spacing here previously inflated the real speed above what the
+    // slider implied, and by a different factor at different canvas widths.
+    const safeSpeed = Math.max(speed, 0.02);
     for (let i = 1; i < path.length; i++) {
-      path[i]!.t = path[i - 1]!.t + dt;
+      const prev = path[i - 1]!;
+      const point = path[i]!;
+      const dist = Math.hypot(point.x - prev.x, point.y - prev.y);
+      point.t = prev.t + Math.max(dist / safeSpeed, 1);
     }
     if (ctx) {
       for (let i = 1; i < path.length; i++) {

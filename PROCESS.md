@@ -20,50 +20,51 @@ instrument, is reachable without a pointer at all.
    physics function (`drawSegment`), driven by an `<input type="range">`
    mapped to a constant-speed traced path
    ([`0b29194`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-shitao/commit/0b29194)).
-   I checked it actually worked by tabbing to the slider and pressing arrow
-   keys in a real Chromium session (`agent-browser`), watching the status
-   read "swift and dry" at one extreme and "measured and dark" at the
-   other, then ran a one-off axe-core audit against the built page
-   (`0 violations, 38 passes`) rather than trusting the markup alone.
+   I checked it worked by tabbing to the slider and pressing arrow keys in a
+   real Chromium session (`agent-browser`), watching the status read "swift
+   and dry" at one extreme and "measured and dark" at the other, then ran a
+   one-off axe-core audit against the built page (0 violations, 38 passes)
+   rather than trusting the markup alone.
 
-2. **Canvas-based interactivity is nearly untestable in jsdom, so I designed
-   the code so the parts that matter don't depend on canvas rendering at
-   all.** `vitest`'s jsdom has no real `<canvas>` 2D backend —
-   `getContext("2d")` returns `null` — so a naive implementation throws the
-   moment a spec test dispatches a pointer event. Instead every draw call is
-   guarded behind `if (ctx)`, so the *behavioural* state — stroke counter,
-   live status text — updates independently of canvas, and
-   `spec/brush.test.ts` asserts that contract against the built
-   `dist/index.html`
-   ([`0b29194`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-shitao/commit/0b29194)).
-   The real physics stayed verified live in a browser (see above); the test
-   just guards against silent regression afterward.
+2. **A demo animation reusing the real draw function can still play the
+   wrong speed.** Re-checking the keyboard path live, I found the demo
+   stroke timed its points by the sine-wave path's horizontal spacing
+   alone, ignoring its vertical motion — the actual speed fed to
+   width/opacity ran faster than the slider claimed, by a different factor
+   per canvas width. The same slider position read "even-handed" on the
+   628px desktop canvas and "swift" on the 322px phone canvas: a
+   keyboard-only visitor would feel two different instruments at the two
+   marking viewports. I confirmed the discrepancy numerically against the
+   live page before touching code, fixed it by timing each point from its
+   true (x, y) distance
+   ([`f5bb895`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-shitao/commit/f5bb895)),
+   and added `spec/demo-speed.test.ts`, checked to fail against the old
+   logic (`git stash`) before trusting it green.
 
 3. **The axe-core pass was a one-off manual check, so I moved it into the
    harness instead of trusting myself to repeat it.** Moment 1's audit was a
    single live-page run — true then, but nothing would catch a later
-   regression short of redoing it by hand every session. I added
+   regression. I added
    `spec/axe.test.ts`
    ([`a2b4e8c`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-shitao/commit/a2b4e8c)),
-   running axe-core's structural rules against the built page inside
-   `pnpm check`. Wiring it up exposed a real gotcha: axe-core reads
-   `window`/`document` from `globalThis` at *import* time, and ESM hoists
-   static imports ahead of the rest of the module — assigning those globals
-   after a static `import axe from "axe-core"` was already too late, so the
-   run failed claiming they weren't set even though they plainly were. I
-   confirmed the cause at a bare Node REPL: globals set *before* a dynamic
-   `import()` worked, set after a static one didn't. I then stripped the
-   canvas's `aria-label`, confirmed a legible failure, and restored `dist/`
-   before rerunning green — the test wasn't a rubber stamp.
+   running axe-core's structural rules inside `pnpm check`. Wiring it up
+   exposed a real gotcha: axe-core reads `window`/`document` from
+   `globalThis` at *import* time, and ESM hoists static imports ahead of the
+   rest of the module — assigning those globals after a static
+   `import axe from "axe-core"` was already too late. I confirmed the cause
+   at a bare Node REPL: globals set *before* a dynamic `import()` worked,
+   set after a static one didn't. I then stripped the canvas's
+   `aria-label`, confirmed a legible failure, and restored `dist/` before
+   rerunning green — the test wasn't a rubber stamp.
 
-4. **This file said contrast was "not measured here" — an acknowledged
-   gap, not a closed one — so I closed it.** `spec/axe.test.ts` disables
+4. **This file said contrast was "not measured here" — an acknowledged gap,
+   not a closed one — so I closed it.** `spec/axe.test.ts` disables
    `color-contrast` because jsdom has no paint engine to resolve colours
    from, but contrast is a pure function of two hex values — no engine
    needed. `spec/contrast.test.ts`
    ([`0f1f224`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-shitao/commit/0f1f224))
-   reads the real `:root` palette out of `styles.css` and checks every
+   reads the real `:root` palette from `styles.css` and checks every
    text/background pair against the right AA threshold, so a palette edit
    is caught rather than trusted by eye. I confirmed it wasn't a rubber
-   stamp by weakening `--seal` and watching five pairs fail with their real
-   ratios, before restoring the file and rerunning green.
+   stamp by weakening `--seal`, watching five pairs fail with their real
+   ratios, then restoring the file and rerunning green.

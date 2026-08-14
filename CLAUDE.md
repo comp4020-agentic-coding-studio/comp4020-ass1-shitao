@@ -200,6 +200,19 @@ that outright.
   sequences (or keyboard arrow presses on the slider) against the built
   `dist/`, checked at both marking viewports. Do this again after any change
   to `widthForSpeed`/`opacityForSpeed`/the demo path in `main.ts`.
+- **A demo path's timestamps have to track its real (x, y) distance, not
+  just one axis.** The keyboard demo stroke traces a sine-wave path and
+  used to derive each point's timestamp from the horizontal step spacing
+  alone; the path's vertical motion made the *real* segment distance (and
+  so the *real* speed fed to `widthForSpeed`/`opacityForSpeed`) run faster
+  than the slider implied, and by a different ratio at different canvas
+  widths — the same slider position classified "even-handed" on the 628px
+  desktop canvas and "swift" on the 322px phone canvas. Found by computing
+  the actual `averageSpeed()` math against the live built page in
+  `agent-browser eval`, not by eyeballing the drawn stroke. Fixed by timing
+  each point from `Math.hypot(dx, dy)` instead of the x-only step; verify
+  with `spec/demo-speed.test.ts`, which asserts a given slider value
+  classifies identically regardless of `canvas.clientWidth`.
 - **`resizeCanvas()`'s `getImageData`/`putImageData` pair is a raw pixel
   copy, not a proportional rescale.** Confirmed by actually resizing
   mid-drag with `agent-browser` (mouse down, move, `set viewport`, move,

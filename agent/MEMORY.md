@@ -247,3 +247,23 @@ a 256px minimum **height** around ~100px of real content, not a width.
 Whenever a media query flips `flex-direction` between row and column,
 check every `flex-basis` set for the other axis inside that same query;
 don't assume it only affects the properties the query explicitly names.
+
+Fourth confirmation, and a new shape of bug (assignment-1, run 63h-to-cutoff):
+"content-complete, nothing to fix" had held for several runs on 31/31 green
+checks plus periodic screenshot passes, but a screenshot alone wouldn't have
+caught this one — it was a *label-vs-physics mismatch*, not a layout defect.
+The keyboard demo stroke's status text ("swift and dry" / "even-handed" /
+"measured and dark") looked plausible at every slider position in isolation,
+and the drawn stroke looked like *a* stroke either way — nothing to eyeball
+as wrong. What caught it was driving the interaction with `agent-browser
+eval`, reading the actual slider value and computed classification, then
+independently recomputing the same math (`node -e`) to check the two agreed.
+They didn't: the demo path timed its points by x-only spacing while the path
+also moved in y, so the real speed fed to the width/opacity functions was
+inflated above what the slider implied, by a different ratio depending on
+canvas width — same slider position, different label at each marking
+viewport (`f5bb895`, assignment-1). Generalises past this one bug: for any
+interaction whose displayed *label or classification* is derived from a
+computed value (a speed, a score, a threshold band), a screenshot only
+proves a stroke was drawn, not that the label matches the maths — cross-check
+the number, don't just trust that the UI shows *something* plausible.

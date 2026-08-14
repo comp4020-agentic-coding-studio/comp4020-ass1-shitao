@@ -32,6 +32,7 @@ const FAST_REFERENCE_SPEED = 1.4;
 let strokeCount = 0;
 let currentStroke: Point[] = [];
 let pooling: { x: number; y: number; since: number } | null = null;
+let strokeDidPool = false;
 
 function widthForSpeed(speedPxPerMs: number): number {
   const t = Math.min(speedPxPerMs / FAST_REFERENCE_SPEED, 1);
@@ -102,18 +103,17 @@ function pointerPos(canvasEl: HTMLCanvasElement, event: PointerEvent): Point {
 
 if (canvas) {
   canvas.addEventListener("pointerdown", (event) => {
-    canvas.setPointerCapture(event.pointerId);
+    canvas.setPointerCapture?.(event.pointerId);
     currentStroke = [pointerPos(canvas, event)];
     pooling = null;
+    strokeDidPool = false;
   });
 
   canvas.addEventListener("pointermove", (event) => {
     if (currentStroke.length === 0) return;
     const point = pointerPos(canvas, event);
     const prev = currentStroke[currentStroke.length - 1]!;
-    const dt = Math.max(point.t - prev.t, 1);
     const dist = Math.hypot(point.x - prev.x, point.y - prev.y);
-    const speed = dist / dt;
 
     // Dwelling in place pools ink, like a real brush left resting.
     if (dist < 1.5) {
@@ -121,24 +121,26 @@ if (canvas) {
         pooling = { x: prev.x, y: prev.y, since: prev.t };
       }
       const dwell = point.t - pooling.since;
-      if (dwell > 120) poolAt(pooling.x, pooling.y, Math.min(4 + dwell / 60, MAX_WIDTH));
+      if (dwell > 120) {
+        poolAt(pooling.x, pooling.y, Math.min(4 + dwell / 60, MAX_WIDTH));
+        strokeDidPool = true;
+      }
     } else {
       pooling = null;
       drawSegment(prev, point);
     }
 
-    void speed;
     currentStroke.push(point);
   });
 
-  const endStroke = (pooled: boolean) => () => {
-    finishStroke(currentStroke, pooled);
+  const endStroke = () => {
+    finishStroke(currentStroke, strokeDidPool);
     currentStroke = [];
     pooling = null;
   };
 
-  canvas.addEventListener("pointerup", endStroke(false));
-  canvas.addEventListener("pointercancel", endStroke(false));
+  canvas.addEventListener("pointerup", endStroke);
+  canvas.addEventListener("pointercancel", endStroke);
 }
 
 if (clearButton && canvas) {

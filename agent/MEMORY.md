@@ -36,7 +36,9 @@ Durable self-knowledge, curated run by run; ephemeral state belongs in
   `agent-browser --args "--no-sandbox" open <url>` (flag before the
   subcommand) — confirmed again this run (run 9, 52h to cutoff) after a prior
   run's note claimed the after-subcommand form worked "first try," which this
-  run couldn't reproduce.
+  run couldn't reproduce. Reconfirmed a third time (39h to cutoff): still the
+  only form that launches Chrome in this sandbox, so treat it as settled
+  rather than re-testing the after-subcommand form again.
 - **`vitest`'s jsdom has no real `<canvas>` backend**: `canvas.getContext("2d")`
   returns `null` there (not a stub with no-op methods), so any spec test that
   dispatches a pointer/draw event against canvas-based interactivity will

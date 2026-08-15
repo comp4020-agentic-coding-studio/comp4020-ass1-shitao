@@ -1,4 +1,4 @@
-# Hand-off --- after this run on Assignment 1, deepen stage (45h to cutoff)
+# Hand-off --- after this run on Assignment 1, deepen stage (39h to cutoff)
 
 **Deliverable:** `comp4020-ass1-shitao`. Due noon Mon 17 Aug 2026
 (Australia/Canberra). Individual, 20% of the course, three criteria
@@ -6,63 +6,58 @@
 The week 4 crit (`crits/03-a1-retro`) reads `reflections/assignment-1.md`
 directly as the retro entry.
 
-**State at start of this run:** repo clean, tip `6cdd4b4` (tick-snapshot),
-up to date with `origin/main` --- the two commits `now.md` previously
-described as "held locally" (`c8d24fd`, `75b2b3c`) had already reached
-origin via the harness's own tick-snapshot push, as expected (per
-`MEMORY.md`'s "out-of-band commits are normal" note). Re-fetched the brief:
-unchanged from what's already summarised in `MEMORY.md`.
+**State at start of this run:** repo clean, tip `b23c7d1` (tick-snapshot),
+up to date with `origin/main`. Re-fetched the brief: unchanged.
 
-**What this run did (a review pass, deliberately not a rebuild):**
+**What this run did (live-browser verification pass, per the standing
+"don't let it lapse for several runs" rule --- it had been two runs since
+the last one):**
 
-- Ran `pnpm check`: 34/34 green, matching the previous run's count exactly
-  --- no drift.
-- Ran `pnpm check:evidence`: fails only on the still-gated missing
-  `reflections/assignment-1.md`, which is correct at 45h out (reflection
-  is a finishing step, gated to inside 24h).
-- Confirmed `PROCESS.md` is 596/600 words --- inside the 400--600 band but
-  with only 4 words of headroom; a future run editing it needs to watch
-  that ceiling, not just the floor.
-- Read `main.ts`, `index.html`, `styles.css` end to end looking for the
-  same *shape* of bug the last two runs found (a dead branch, a
-  label/physics mismatch, a flex-basis trap under a media query). Grepped
-  every call site of `finishStroke`/`classify`/`pooled`/`strokeDidPool`
-  (all live now, post the pooled-status fix), re-checked the demo-slider's
-  distance-based timing math by hand, and re-checked the mobile media
-  query's `.control { flex-basis: auto; }` reset (still present, still
-  correct). Found nothing wrong. This is a real negative result, not a
-  skipped check --- worth recording so a future run doesn't re-walk the
-  exact same static-review ground from scratch without a new reason to.
-- Did not re-open a live browser this run: the previous run's live
-  interaction pass (both viewports, in-viewport coordinates, checked
-  `window.innerWidth/innerHeight` first) was only hours earlier and
-  nothing in the code has changed since, so re-running it now would be
-  pure repetition rather than verification of anything new. Per
-  `MEMORY.md`'s standing rule, don't let this lapse for *several runs in a
-  row* --- if a future run at, say, 30h+ still hasn't re-opened a real
-  browser since this morning's pass, that's the moment to do it again,
-  not skip it a second time.
+- `pnpm check`: 34/34 green, matching every prior run --- no drift.
+- Served `dist/` locally, opened it in `agent-browser` (needed
+  `--args "--no-sandbox"` *before* the subcommand, per `MEMORY.md` --- this
+  is now confirmed a third time, treat it as settled).
+- Desktop (1920×1080): screenshot clean, matches prior passes.
+- Real interaction pass on the canvas, using in-viewport coordinates (box
+  was fully on-screen this time, checked before trusting it): a slow drag
+  classified "measured and dark", a fast drag "swift and dry", and a
+  deliberate dwell (near-zero movement across several pointermoves spanning
+  >120ms of real wall time) correctly produced "saturated and pooling" ---
+  this is the live confirmation that the `c8d24fd` pooled-status fix from a
+  few runs ago actually fires end to end, not just in the jsdom spec test.
+- Keyboard path: focused the range input via `eval` (`agent-browser find
+  ... focus` isn't a valid action --- only click/fill/check/hover/text ---
+  so `eval "...focus()"` is the way to drive focus manually), pressed
+  `ArrowRight` a few times, got a sensible "even-handed" classification at
+  slider value 53. Keyboard-operable path still works.
+- Mobile (390×844): screenshotted top to bottom in three scroll steps.
+  Nothing overflows, the slider/button row still has no dead gap (the
+  `flex-basis: auto` mobile reset from run 6's fix is still in place and
+  still correct), and the page ends cleanly. No console errors
+  (`agent-browser errors`/`console` both empty) at any point in the pass.
+- Did not re-test the mid-drag resize case this run (viewport resize while
+  pointer is down) --- `resizeCanvas`'s raw-pixel-copy behaviour hasn't
+  changed and was already verified acceptable in an earlier run; re-running
+  it with nothing changed would be repetition, not verification.
+- Shut down the local server afterward.
 
-**Not done (deliberately, still 45h out, correctly gated):**
+**Net result: a fourth clean confirmation that the site is content-complete.**
+No code changes this run --- nothing to commit, nothing found wrong across
+either static review (prior run) or this live pass.
 
-- `reflections/assignment-1.md` still doesn't exist --- gated to inside
-  24h. The demo-speed fix (`f5bb895`) remains the strongest breakthrough
-  candidate; the pooled-status fix (`c8d24fd`) is good supporting colour
-  but doesn't need its own reflection mention given the 150--300 word
-  budget.
-- No new commits this run --- nothing changed, so there was nothing to
-  commit. `git status` clean, `main` even with `origin/main`.
+**Not done (deliberately, still 39h out, correctly gated):**
+
+- `reflections/assignment-1.md` still doesn't exist --- gated to inside 24h.
+  The demo-speed fix (`f5bb895`) remains the strongest breakthrough
+  candidate for that entry; the pooled-status fix (`c8d24fd`) is good
+  supporting colour, now doubly verified live this run.
 
 **Most important next action:** when a future run lands inside 24h of the
 17 Aug noon cutoff, move to finishing steps: draft
 `reflections/assignment-1.md` around the demo-speed fix as the
 breakthrough (150--300 words, answer both standing prompts), do one final
-full interaction-based browser pass at both viewports (in-viewport
-coordinates, not raw `get box` numbers), confirm `git status` clean, and
-push. Until then: the site is genuinely content-complete after two rounds
-of real bug-finding on top of an already-solid build, confirmed again by
-this run's full static-review pass turning up nothing new. Don't
-manufacture a fourth round of scope without a concrete lead --- but if a
-future run has spare time before 24h *and* it's been several runs since
-the last live-browser pass, that periodic re-verification is the one
-standing obligation left, not another code-review sweep.
+interaction-based browser pass at both viewports if it's been a while
+again, confirm `git status` clean, and push. Until then, don't manufacture
+a fifth round of code-review scope against a brief that's genuinely met ---
+the one standing obligation is the periodic live-browser re-check, and
+this run just did it.

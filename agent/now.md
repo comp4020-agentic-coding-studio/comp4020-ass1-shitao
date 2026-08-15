@@ -1,4 +1,4 @@
-# Hand-off --- after this run on Assignment 1, deepen stage (52h to cutoff)
+# Hand-off --- after this run on Assignment 1, deepen stage (45h to cutoff)
 
 **Deliverable:** `comp4020-ass1-shitao`. Due noon Mon 17 Aug 2026
 (Australia/Canberra). Individual, 20% of the course, three criteria
@@ -6,80 +6,63 @@
 The week 4 crit (`crits/03-a1-retro`) reads `reflections/assignment-1.md`
 directly as the retro entry.
 
-**State at start of this run:** repo clean, tip `4fad2b9` (tick-snapshot),
-`main.ts`/`af5997a` demo-speed fix from the previous run already pushed
-out-of-band via tick-snapshot (normal, per `MEMORY.md`). Re-fetched the
-brief: unchanged. Ran `pnpm check`: 32/32 green.
+**State at start of this run:** repo clean, tip `6cdd4b4` (tick-snapshot),
+up to date with `origin/main` --- the two commits `now.md` previously
+described as "held locally" (`c8d24fd`, `75b2b3c`) had already reached
+origin via the harness's own tick-snapshot push, as expected (per
+`MEMORY.md`'s "out-of-band commits are normal" note). Re-fetched the brief:
+unchanged from what's already summarised in `MEMORY.md`.
 
-**What this run did (a second real bug, found by code review not just
-browser-driving):**
+**What this run did (a review pass, deliberately not a rebuild):**
 
-- Reviewed `main.ts` end to end rather than just re-running checks. Grepped
-  every call site of `finishStroke`/`classify`'s `pooled` parameter and
-  found it hard-coded to `false` everywhere (`pointerup`, `pointercancel`,
-  the keyboard demo) --- the "saturated and pooling — the brush lingered"
-  status message was dead code, even though `poolAt()` visibly draws the
-  ink pool on canvas when a drag dwells in place past 120ms. The interaction
-  half worked; the status text describing it never could.
-- First live-browser attempts to reproduce this gave a *false negative* ---
-  zero events reached the canvas at all, no console error either. Chased it
-  down (not blamed on "flaky agent-browser") and found the real cause:
-  `agent-browser get box` returns full-page coordinates, not coordinates
-  clipped to `window.innerHeight`, so a point that looks inside the
-  reported canvas box can be below the actual visible viewport. Confirmed
-  via `document.elementFromPoint` returning `null` at that point. New
-  `MEMORY.md` tooling-gotcha entry on this, plus a "grep call sites before
-  driving the UI" working-habits entry, since the static-analysis finding
-  was reliable and the live-browser attempt initially wasn't (for reasons
-  unrelated to the actual bug).
-- Fixed in `c8d24fd`: track `strokeDidPool` across the pointer lifecycle
-  (set true wherever `poolAt` actually fires, reset on `pointerdown`) and
-  pass that into `finishStroke` instead of a constant. Also guarded
-  `canvas.setPointerCapture?.()` since jsdom doesn't implement it, so a new
-  regression test could dispatch real `PointerEvent`s without crashing.
-- `spec/pooling.test.ts` dispatches synthetic pointer events with
-  controlled `timeStamp`s; watched it fail against the pre-fix code first
-  (`git stash push -- main.ts`, ran the test, saw the real failure, popped
-  the stash) before trusting it green. `pnpm check` is now 34/34 (was
-  32/32).
-- Verified live in a real Chromium session (`agent-browser`, no-sandbox
-  args) at both marking viewports with in-viewport coordinates this time:
-  status correctly reads "Stroke N: saturated and pooling — the brush
-  lingered" at both 1920×1080 and 390×844, no console errors, screenshots
-  looked right (dark pool visible on the canvas).
-- Documented the fix and the viewport-clipping false-negative in `CLAUDE.md`
-  (`75b2b3c`), in the per-file gotcha list, following the file's existing
-  pattern. Deliberately did **not** touch `PROCESS.md` --- it's already at
-  its 4-moment cap (per the spec's "three or four, not more"), and the four
-  moments already there (keyboard-first-class, demo-speed fix, axe-core
-  wiring, contrast-check wiring) are all strong harness-level corrections.
-  This fix stands on its own via commit history + the CLAUDE.md note, which
-  is fine: not every good fix needs to be a featured "moment."
+- Ran `pnpm check`: 34/34 green, matching the previous run's count exactly
+  --- no drift.
+- Ran `pnpm check:evidence`: fails only on the still-gated missing
+  `reflections/assignment-1.md`, which is correct at 45h out (reflection
+  is a finishing step, gated to inside 24h).
+- Confirmed `PROCESS.md` is 596/600 words --- inside the 400--600 band but
+  with only 4 words of headroom; a future run editing it needs to watch
+  that ceiling, not just the floor.
+- Read `main.ts`, `index.html`, `styles.css` end to end looking for the
+  same *shape* of bug the last two runs found (a dead branch, a
+  label/physics mismatch, a flex-basis trap under a media query). Grepped
+  every call site of `finishStroke`/`classify`/`pooled`/`strokeDidPool`
+  (all live now, post the pooled-status fix), re-checked the demo-slider's
+  distance-based timing math by hand, and re-checked the mobile media
+  query's `.control { flex-basis: auto; }` reset (still present, still
+  correct). Found nothing wrong. This is a real negative result, not a
+  skipped check --- worth recording so a future run doesn't re-walk the
+  exact same static-review ground from scratch without a new reason to.
+- Did not re-open a live browser this run: the previous run's live
+  interaction pass (both viewports, in-viewport coordinates, checked
+  `window.innerWidth/innerHeight` first) was only hours earlier and
+  nothing in the code has changed since, so re-running it now would be
+  pure repetition rather than verification of anything new. Per
+  `MEMORY.md`'s standing rule, don't let this lapse for *several runs in a
+  row* --- if a future run at, say, 30h+ still hasn't re-opened a real
+  browser since this morning's pass, that's the moment to do it again,
+  not skip it a second time.
 
-**Not done (deliberately, still 52h out, correctly gated):**
+**Not done (deliberately, still 45h out, correctly gated):**
 
-- `reflections/assignment-1.md` still doesn't exist --- gated to inside 24h
-  per doctrine. The demo-speed fix (from the previous run) remains the
-  strongest breakthrough candidate for the reflection; this run's
-  pooled-status fix is good supporting material for `PROCESS.md`-adjacent
-  colour but doesn't need its own reflection mention given the 150--300
-  word budget.
-- No push beyond what the harness does out-of-band via tick-snapshots.
-  Working tree is clean; `main` is 2 commits ahead of `origin/main`
-  (`c8d24fd`, `75b2b3c`) --- correctly held locally, per the inside-24h gate
-  on finishing steps.
+- `reflections/assignment-1.md` still doesn't exist --- gated to inside
+  24h. The demo-speed fix (`f5bb895`) remains the strongest breakthrough
+  candidate; the pooled-status fix (`c8d24fd`) is good supporting colour
+  but doesn't need its own reflection mention given the 150--300 word
+  budget.
+- No new commits this run --- nothing changed, so there was nothing to
+  commit. `git status` clean, `main` even with `origin/main`.
 
 **Most important next action:** when a future run lands inside 24h of the
 17 Aug noon cutoff, move to finishing steps: draft
-`reflections/assignment-1.md` around the demo-speed fix (`f5bb895`) as the
-breakthrough (150--300 words, distinct from `PROCESS.md`'s own prose, answer
-both standing prompts), do one final full interaction-based browser pass at
-both viewports (using in-viewport coordinates --- check
-`window.innerWidth`/`innerHeight` first, don't trust `get box` numbers
-blindly per the new `MEMORY.md` gotcha), confirm `git status` clean, and
-push. Until then, the site is genuinely content-complete after two rounds
-of real bug-finding (demo-speed, pooled-status) on top of an already-solid
-build --- don't manufacture a third round of scope without a concrete lead;
-a targeted code-review pass (grep every flag's call sites, re-check every
-`if`/`else` branch is reachable) is a cheaper next move than another full
-browser sweep if a future run has spare time before 24h.
+`reflections/assignment-1.md` around the demo-speed fix as the
+breakthrough (150--300 words, answer both standing prompts), do one final
+full interaction-based browser pass at both viewports (in-viewport
+coordinates, not raw `get box` numbers), confirm `git status` clean, and
+push. Until then: the site is genuinely content-complete after two rounds
+of real bug-finding on top of an already-solid build, confirmed again by
+this run's full static-review pass turning up nothing new. Don't
+manufacture a fourth round of scope without a concrete lead --- but if a
+future run has spare time before 24h *and* it's been several runs since
+the last live-browser pass, that periodic re-verification is the one
+standing obligation left, not another code-review sweep.
